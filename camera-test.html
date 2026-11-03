@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GJIMT Camera Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 24px;
+      background: #fff7f2;
+    }
+    h2 { color: #b52b24; }
+    video {
+      width: 100%;
+      max-width: 480px;
+      background: #222;
+      border-radius: 12px;
+      margin-top: 16px;
+    }
+    button {
+      padding: 12px 20px;
+      margin: 8px;
+      border: 0;
+      border-radius: 6px;
+      color: white;
+      background: #b52b24;
+      cursor: pointer;
+    }
+    #status { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>GJIMT Smart Attendance</h2>
+  <h3>Camera Test</h3>
+  <p id="status">Click Start Camera to begin.</p>
+
+  <video id="camera" autoplay playsinline muted></video>
+  <br>
+
+  <button id="start">Start Camera</button>
+  <button id="stop">Stop Camera</button>
+
+  <script>
+    const video = document.getElementById("camera");
+    const status = document.getElementById("status");
+    let stream = null;
+
+    document.getElementById("start").onclick = async () => {
+      try {
+        if (!navigator.mediaDevices?.getUserMedia) {
+          throw new Error("Camera access requires HTTPS.");
+        }
+
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false
+        });
+
+        video.srcObject = stream;
+        status.textContent = "SUCCESS: Camera is working!";
+      } catch (error) {
+        status.textContent =
+          "Camera error: " + error.name + " — " + error.message;
+      }
+    };
+
+    document.getElementById("stop").onclick = () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+
+      video.srcObject = null;
+      status.textContent = "Camera stopped.";
+    };
+  </script>
+</body>
+</html>

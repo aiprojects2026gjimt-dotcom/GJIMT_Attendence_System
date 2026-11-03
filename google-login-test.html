@@ -1,0 +1,65 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GJIMT Google Sign-in Test</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+  <h2>GJIMT Smart AI Attendance</h2>
+  <p>Receptionist Google sign-in test</p>
+
+  <div id="g_id_onload"
+       data-client_id="262368848060-jatsm0taogl9lmbc8mggnf02m2c8dfrp.apps.googleusercontent.com"
+       data-callback="handleCredentialResponse"
+       data-auto_prompt="false">
+  </div>
+
+  <div class="g_id_signin"
+       data-type="standard"
+       data-size="large"
+       data-theme="outline"
+       data-text="signin_with"
+       data-shape="rectangular">
+  </div>
+
+  <p id="status">Please sign in with the authorized receptionist account.</p>
+
+ 
+<script>
+  
+function handleCredentialResponse(response) {
+  const status = document.getElementById("status");
+  const idToken = response && response.credential;
+
+  if (!idToken) {
+    status.textContent = "Google sign-in did not provide a credential.";
+    return;
+  }
+
+  // Send the credential only to the expected parent page.
+  const expectedParentOrigin = "https://script.google.com";
+
+  if (window.parent === window) {
+    status.textContent =
+      "Open this page inside the attendance system to continue.";
+    return;
+  }
+
+  window.parent.postMessage(
+    {
+      type: "GJIMT_RECEPTIONIST_TOKEN",
+      idToken: idToken
+    },
+    expectedParentOrigin
+  );
+
+  status.textContent =
+    "Google sign-in completed. Waiting for authorization verification.";
+}
+</script>
+
+</body>
+</html>
