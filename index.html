@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GJIMT Smart AI Faculty Attendance</title>
+<style>
+:root{--red:#A91F2C;--dark:#7D1822;--orange:#F28C28;--ink:#292D32;--muted:#68717D;--line:#E8E8EC;--bg:#FAFAFB;--green:#176B3A}*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--ink)}.top{background:#fff;border-bottom:4px solid var(--red);padding:14px clamp(16px,4vw,55px);display:flex;justify-content:space-between;align-items:center;gap:14px}.brand{display:flex;align-items:center;gap:13px}.logo{width:58px;height:58px;object-fit:contain}.brand h1{font-size:23px;color:var(--red);margin:0}.brand p{font-size:12px;color:var(--muted);margin:4px 0 0}.tag{font-size:12px;font-weight:800;letter-spacing:1px;color:var(--red);text-align:right}main{max-width:1120px;width:94%;margin:28px auto 42px}.welcome{display:flex;justify-content:space-between;align-items:end;gap:18px;margin-bottom:22px}.welcome h2{color:var(--dark);font-size:clamp(25px,3vw,34px);margin:0 0 7px}.welcome p{margin:0;color:var(--muted)}.clock{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 15px;text-align:right;min-width:205px}.clock small{display:block;color:var(--muted)}.clock strong{display:block;color:var(--red);font-size:21px;margin-top:4px}.grid{display:grid;grid-template-columns:1.12fr .88fr;gap:20px;align-items:start}.panel{background:#fff;border:1px solid var(--line);border-radius:17px;padding:clamp(17px,3vw,26px);box-shadow:0 7px 24px #1a1a1a08}.panel h3{margin:0 0 7px;color:var(--dark);font-size:20px}.sub{font-size:13px;line-height:1.55;color:var(--muted);margin:0 0 17px}.camera{position:relative;aspect-ratio:4/3;background:#202329;border-radius:13px;overflow:hidden;display:grid;place-items:center;color:white}.camera video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:none}.placeholder{text-align:center;padding:20px;color:#eee}.placeholder b{font-size:38px;display:block}.status{font-size:13px;color:var(--muted);margin:12px 0;display:flex;align-items:center;gap:8px}.dot{width:9px;height:9px;border-radius:50%;background:#9aa}.dot.live{background:#1da65b;box-shadow:0 0 0 4px #e4f6ea}.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}button{border:0;border-radius:9px;padding:12px 14px;background:var(--red);color:white;font-weight:750;cursor:pointer}button:hover{filter:brightness(.95)}button:disabled{opacity:.55;cursor:wait}.secondary{background:white;border:1px solid var(--red);color:var(--red)}.orange{background:var(--orange)}.notice{padding:12px 14px;border-radius:10px;font-size:13px;line-height:1.5;margin-top:14px;white-space:pre-line}.info{background:#fff5e9;color:#825016;border:1px solid #f4debf}.success{background:#eaf8ef;color:#176b3a;border:1px solid #c7ebd3}.error{background:#fff2f2;color:#7d1822;border:1px solid #f2d0d0}.field{margin:12px 0}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}.field input{width:100%;padding:12px;border:1px solid #d8dce2;border-radius:9px;font-size:15px}.admin{margin-top:20px;border-top:1px solid var(--line);padding-top:17px}.admin-toggle{width:auto;background:transparent;color:var(--red);padding:4px 0;text-decoration:underline}.admin-box{display:none;margin-top:14px;background:#fafafa;border:1px solid var(--line);border-radius:12px;padding:15px}.admin-box.open{display:block}.small{font-size:12px;color:var(--muted);line-height:1.5}.records{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}.records th,.records td{text-align:left;padding:8px;border-bottom:1px solid var(--line)}.records th{color:var(--dark)}footer{text-align:center;padding:20px;background:white;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}footer b{display:block;color:var(--red);letter-spacing:1px;margin-bottom:5px}@media(max-width:760px){.top,.welcome{align-items:flex-start;flex-direction:column}.tag{text-align:left}.clock{text-align:left}.grid{grid-template-columns:1fr}}@media(max-width:430px){.actions{grid-template-columns:1fr}.brand h1{font-size:20px}}
+</style>
+<script src="config.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+</head>
+<body>
+<header class="top"><div class="brand"><img class="logo" src="https://www.gjimt.ac.in/wp-content/uploads/2019/07/EEF_GcU_400x400-300x300.jpg" alt="GJIMT"><div><h1>GJIMT</h1><p>Gian Jyoti Institute of Management &amp; Technology</p></div></div><div class="tag">SMART AI FACULTY ATTENDANCE</div></header>
+<main>
+<section class="welcome"><div><h2>Welcome to GJIMT</h2><p>Look at the camera to mark your faculty attendance.</p></div><div class="clock"><small id="date">Loading date…</small><strong id="time">--:--:--</strong></div></section>
+<div class="panel" style="margin-bottom:16px"><h3>Institutional sign-in</h3><p class="sub">Sign in with your approved Google account before using the camera or administrator tools.</p><div id="googleSignIn"></div><div id="identityStatus" class="notice info">Not signed in. Please sign in with your authorized institutional account.</div><button id="signOutBtn" class="secondary" style="display:none;margin-top:8px" onclick="signOut()">Sign out</button></div>
+<div class="grid">
+<section class="panel"><h3>01 · Face Recognition</h3><p class="sub">Stand in front of the camera, keep your face visible and look towards the screen. Attendance is recorded only when a registered face is matched.</p>
+<div class="camera"><div class="placeholder" id="placeholder"><b>◎</b>Camera preview<br><span class="small">Press Start Camera to begin</span></div><video id="video" autoplay muted playsinline></video></div>
+<div class="status"><span class="dot" id="dot"></span><span id="cameraStatus">Camera is not running</span></div>
+<div class="actions"><button id="startBtn" onclick="startCamera()">Start Camera</button><button id="stopBtn" class="secondary" onclick="stopCamera()" disabled>Stop Camera</button></div>
+<div id="faceMessage" class="notice info" role="status">System is ready. Start the camera to load recognition models.</div>
+<div id="result" class="notice hidden"></div>
+</section>
+<section class="panel"><h3>Attendance Instructions</h3><p class="sub">For a successful check-in:</p>
+<ol class="small" style="padding-left:19px;line-height:2"><li>Stand approximately 1–2 feet from the camera.</li><li>Ensure the room is adequately lit.</li><li>Remove anything that significantly obscures your face.</li><li>Wait for the recognition confirmation.</li></ol>
+<div class="notice info">If your face is not recognised, please contact the administration team for the approved alternative attendance process. Employee ID alone will not automatically mark attendance.</div>
+<div class="admin"><button class="admin-toggle" onclick="toggleAdmin()">Administrator: faculty enrollment / reports</button>
+<div class="admin-box" id="adminBox"><p class="small"><b>Restricted administrator area.</b> Enter the administrator PIN. Faculty must have an Active employee record and consent_status = Granted in the Employees tab before enrollment.</p>
+<div class="field"><label for="adminPin">Administrator PIN</label><input id="adminPin" type="password" autocomplete="off" placeholder="Enter admin PIN"></div>
+<div class="field"><label for="employeeId">Faculty Employee ID</label><input id="employeeId" type="text" placeholder="e.g. TEST001" autocomplete="off"></div>
+<div class="actions"><button id="enrollBtn" onclick="enrollCurrentFace()">Capture &amp; Enroll Face</button><button class="secondary" onclick="loadReport()">Today's Attendance</button></div>
+<div id="adminMessage" class="notice info hidden"></div><div id="report"></div>
+<p class="small">Enrollment requires the camera to be running. Ask the faculty member to face the camera directly. Capture a fresh enrollment if appearance changes substantially.</p>
+</div></div>
+</section></div>
+</main>
+<footer><b>ASPIRE. ACHIEVE. ASCEND.</b>Gian Jyoti Institute of Management &amp; Technology · Mohali</footer>
+<script>
+const MODEL_URL='https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights';
+const video=document.getElementById('video');let stream=null,modelsReady=false,scanTimer=null,scanBusy=false,lastAttempt=0,recognitionPaused=false;
+function show(id,msg,type='info'){const el=document.getElementById(id);el.textContent=msg;el.className='notice '+type;}
+// GitHub Pages calls a Cloudflare Worker proxy; never put API secrets in this public file.
+const CFG = window.GJIMT_CONFIG || {};
+let idToken = '';
+let accountEmail = '';
+function updateIdentity(message, type='info') { show('identityStatus', message, type); }
+function receiveCredential(response) {
+  if (!response || !response.credential) { updateIdentity('Google sign-in failed.','error'); return; }
+  idToken = response.credential;
+  // Do not trust client-side identity for authorization; Worker verifies ID token with Google.
+  accountEmail = '';
+  updateIdentity('Google sign-in received. Checking institutional access…','info');
+  callServer('testBackend').then(() => {
+    updateIdentity('Institutional access verified. You can start the camera.','success');
+    document.getElementById('signOutBtn').style.display='inline-block';
+    show('faceMessage','Backend connected. Start the camera to check in.','success');
+  }).catch(err => { idToken=''; updateIdentity('Access denied: '+err.message,'error'); show('faceMessage','Backend not connected: '+err.message,'error'); });
+}
+function signOut() {
+  idToken=''; accountEmail='';
+  if(window.google?.accounts?.id) google.accounts.id.disableAutoSelect();
+  document.getElementById('signOutBtn').style.display='none';
+  updateIdentity('Signed out. Sign in again to continue.');
+  stopCamera(false);
+}
+function initializeIdentity() {
+  if(!CFG.workerUrl || !/^https:\/\//.test(CFG.workerUrl) || !CFG.googleClientId) {
+    updateIdentity('Configure workerUrl and googleClientId in config.js.','error');
+    show('faceMessage','Backend not configured. Follow the README deployment steps.','error'); return;
+  }
+  if(!window.google?.accounts?.id) { setTimeout(initializeIdentity, 400); return; }
+  google.accounts.id.initialize({client_id: CFG.googleClientId, callback: receiveCredential, auto_select:false});
+  google.accounts.id.renderButton(document.getElementById('googleSignIn'), {theme:'outline',size:'large',text:'signin_with',width:260});
+}
+async function callServer(action,...args) {
+  if(!idToken) throw new Error('Please sign in with your institutional Google account.');
+  if(!CFG.workerUrl || !/^https:\/\//.test(CFG.workerUrl)) throw new Error('Worker URL is missing from config.js.');
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000);
+  try {
+    const response = await fetch(CFG.workerUrl, {
+      method:'POST', mode:'cors', cache:'no-store',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+idToken},
+      body:JSON.stringify({action,args}), signal:controller.signal
+    });
+    let payload;
+    try { payload = await response.json(); } catch { throw new Error('Invalid response from secure API proxy.'); }
+    if(!response.ok || !payload.success) throw new Error(payload.error || 'API request failed ('+response.status+').');
+    return payload.data;
+  } catch(err) {
+    if(err.name==='AbortError') throw new Error('Request timed out. Check Worker and Apps Script deployments.');
+    throw err;
+  } finally { clearTimeout(timeout); }
+}
+window.addEventListener('DOMContentLoaded', initializeIdentity);
+
+function clock(){const d=new Date();document.getElementById('date').textContent=d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Kolkata'});document.getElementById('time').textContent=d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true,timeZone:'Asia/Kolkata'});}clock();setInterval(clock,1000);
+async function loadModels(){if(modelsReady)return;if(!window.faceapi)throw new Error('Face recognition library did not load. Check internet access and reload.');show('faceMessage','Loading face detection, landmark and recognition models…');await Promise.all([faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)]);modelsReady=true;show('faceMessage','Recognition models loaded. Camera is ready.','success');}
+async function startCamera(){const b=document.getElementById('startBtn');b.disabled=true;try{if(!idToken)throw new Error('Please sign in before starting the camera.');await loadModels();if(!navigator.mediaDevices?.getUserMedia)throw new Error('Camera requires HTTPS and a supported browser.');stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720},facingMode:'user'},audio:false});video.srcObject=stream;await video.play();await new Promise(r=>{if(video.videoWidth)r();else video.onloadedmetadata=r;});video.style.display='block';document.getElementById('placeholder').style.display='none';document.getElementById('cameraStatus').textContent='Camera is running · looking for a registered faculty face';document.getElementById('dot').classList.add('live');document.getElementById('stopBtn').disabled=false;show('faceMessage','Camera is active. Please look directly at the camera.','success');scan();}catch(e){show('faceMessage',e.message||String(e),'error');stopCamera(false);}finally{b.disabled=false;}}
+function stopCamera(showMsg=true){if(scanTimer)clearTimeout(scanTimer);scanTimer=null;if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}video.srcObject=null;video.style.display='none';document.getElementById('placeholder').style.display='block';document.getElementById('cameraStatus').textContent='Camera is not running';document.getElementById('dot').classList.remove('live');document.getElementById('stopBtn').disabled=true;if(showMsg)show('faceMessage','Camera stopped.','info');}
+async function scan(){if(!stream||scanBusy||recognitionPaused)return;scanBusy=true;try{if(video.readyState>=2){const found=await faceapi.detectSingleFace(video,new faceapi.TinyFaceDetectorOptions({inputSize:320,scoreThreshold:.55})).withFaceLandmarks().withFaceDescriptor();if(found){const now=Date.now();if(now-lastAttempt>9000){lastAttempt=now;show('faceMessage','Face detected. Verifying securely…','info');const response=await callServer('recognizeAndMarkAttendance',Array.from(found.descriptor),'KIOSK-01');if(response.success){recognitionPaused=true;const e=response.employee||{};const msg=response.alreadyMarked?'Attendance already marked today.':'Attendance marked successfully.';show('result',`${msg}\n${e.employee_name||''} (${e.employee_id||''})\n${e.department||''}\n${response.date||''} ${response.time||''}`,'success');show('faceMessage','Recognition complete. Please step away from the camera.','success');setTimeout(()=>{recognitionPaused=false;document.getElementById('result').classList.add('hidden');},12000);}else if(response.code==='NOT_RECOGNIZED'){show('faceMessage',response.message,'info');}else{show('faceMessage',response.message||'Recognition could not be completed.','error');}}}else{show('faceMessage','Camera active. Position your face inside the camera view.','info');}}}catch(e){show('faceMessage','Recognition error: '+e.message,'error');}finally{scanBusy=false;if(stream)scanTimer=setTimeout(scan,1400);}}
+function toggleAdmin(){document.getElementById('adminBox').classList.toggle('open');}
+async function enrollCurrentFace(){const pin=document.getElementById('adminPin').value.trim(),id=document.getElementById('employeeId').value.trim();const btn=document.getElementById('enrollBtn');if(!pin||!id){show('adminMessage','Enter both administrator PIN and Employee ID.','error');return;}if(!stream){show('adminMessage','Start the camera first.','error');return;}btn.disabled=true;recognitionPaused=true;try{const emp=await callServer('getEnrollmentEmployee',id,pin);const face=await faceapi.detectSingleFace(video,new faceapi.TinyFaceDetectorOptions({inputSize:416,scoreThreshold:.6})).withFaceLandmarks().withFaceDescriptor();if(!face)throw new Error('No clear face detected. Adjust lighting and position, then try again.');const result=await callServer('enrollFace',id,Array.from(face.descriptor),pin);show('adminMessage',result.message||`${emp.employee_name} enrolled.`,'success');}catch(e){show('adminMessage',e.message||String(e),'error');}finally{btn.disabled=false;recognitionPaused=false;}}
+async function loadReport(){const pin=document.getElementById('adminPin').value.trim();if(!pin){show('adminMessage','Enter administrator PIN first.','error');return;}try{const data=await callServer('getTodayAttendance',pin);let html=`<p class="small"><b>Today's attendance (${data.date}) — ${data.count} record(s)</b></p>`;if(!data.records.length)html+='<p class="small">No attendance records yet.</p>';else{html+='<table class="records"><thead><tr><th>Faculty</th><th>ID</th><th>Time</th><th>Dept.</th></tr></thead><tbody>';data.records.forEach(r=>{html+=`<tr><td>${escapeHtml(r.employee_name)}</td><td>${escapeHtml(r.employee_id)}</td><td>${escapeHtml(r.check_in_time)}</td><td>${escapeHtml(r.department)}</td></tr>`;});html+='</tbody></table>';}document.getElementById('report').innerHTML=html;show('adminMessage','Attendance report loaded.','success');}catch(e){show('adminMessage',e.message||String(e),'error');}}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+window.addEventListener('pagehide',()=>stopCamera(false));
+</script>
+</body></html>
