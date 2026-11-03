@@ -1,0 +1,172 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GJIMT Face Detection Test</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background: #fff7f2;
+    }
+    h2 { color: #b52b24; }
+    #cameraBox {
+      position: relative;
+      display: inline-block;
+      width: min(100%, 640px);
+    }
+    video, canvas {
+      width: 100%;
+      border-radius: 10px;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    button {
+      padding: 12px 20px;
+      margin: 8px;
+      border: 0;
+      border-radius: 6px;
+      color: white;
+      background: #b52b24;
+      cursor: pointer;
+    }
+    #status { font-weight: bold; }
+  </style>
+</head>
+
+<body>
+  <h2>GJIMT Smart Attendance</h2>
+  <h3>Face Detection Test</h3>
+
+  <p id="status">Click Start Test to load the face-detection model.</p>
+
+  <div id="cameraBox"
+     style="display:block; width:100%; max-width:640px; margin:20px auto;">
+  <video id="camera"
+         autoplay muted playsinline
+         style="display:block; width:100%; min-height:300px; background:#222;">
+  </video>
+  <canvas id="overlay"></canvas>
+</div>
+
+  <br>
+  <button id="start">Start Test</button>
+  <button id="stop">Stop Camera</button>
+
+  <script>
+    const video = document.getElementById("camera");
+    const canvas = document.getElementById("overlay");
+    const status = document.getElementById("status");
+
+    let stream = null;
+    let running = false;
+    let busy = false;
+    let modelsLoaded = false;
+
+    async function detectFaces() {
+      if (!running || busy) return;
+
+      if (video.readyState < 2) {
+        setTimeout(detectFaces, 300);
+        return;
+      }
+
+      busy = true;
+
+      try {
+        const detections = await faceapi.detectAllFaces(
+          video,
+          new faceapi.TinyFaceDetectorOptions()
+        );
+
+        const size = {
+          width: video.videoWidth,
+          height: video.videoHeight
+        };
+
+        faceapi.matchDimensions(canvas, size);
+
+        const resized = faceapi.resizeResults(detections, size);
+        canvas.getContext("2d").clearRect(
+          0, 0, canvas.width, canvas.height
+        );
+
+        faceapi.draw.drawDetections(canvas, resized);
+
+        status.textContent = detections.length
+          ? "SUCCESS: Face detected! Faces found: " + detections.length
+          : "Camera working. Move your face into the frame.";
+      } catch (error) {
+        status.textContent = "Detection error: " + error.message;
+        running = false;
+      } finally {
+        busy = false;
+      }
+
+      if (running) setTimeout(detectFaces, 250);
+    }
+
+    document.getElementById("start").onclick = async () => {
+      try {
+        status.textContent = "Loading face-detection model...";
+
+        if (!modelsLoaded) {
+          await faceapi.nets.tinyFaceDetector.loadFromUri(
+            "https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights"
+          );
+          modelsLoaded = true;
+        }
+
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false
+        });
+
+        video.srcObject = stream;
+        await video.play();
+
+        await new Promise(resolve => {
+          if (video.videoWidth) resolve();
+          else video.onloadedmetadata = resolve;
+        });
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        running = true;
+        status.textContent = "Model loaded. Looking for a face...";
+        detectFaces();
+      } catch (error) {
+        status.textContent =
+          "Error: " + error.message +
+          ". Check the internet connection and camera permission.";
+      }
+    };
+
+    document.getElementById("stop").onclick = () => {
+      running = false;
+
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+
+      video.srcObject = null;
+      canvas.getContext("2d").clearRect(
+        0, 0, canvas.width, canvas.height
+      );
+
+      status.textContent = "Camera stopped.";
+    };
+  </script>
+</body>
+</html>
